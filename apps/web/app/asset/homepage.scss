@@ -1,0 +1,29 @@
+.heroImgWrapper {
+  @media (min-width: 64rem) {
+    position: relative;
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("../asset/img/bgHero.jpg");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      opacity: 0.1;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 10;
+    }
+  }
+}
+.featuredWrapper {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+}

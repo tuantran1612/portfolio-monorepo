@@ -1,5 +1,5 @@
 import { categoryService } from '@/services/category.service'
-import { ProjectsClient } from '@/components/projects/projects-client'
+import { ProjectsClient } from '@/components/projects/project-client'
 import { projectService } from '@/services/project.service'
 
 export default async function ProjectsPage() {

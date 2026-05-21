@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@portfolio/types": ["../../packages/types/src/index.ts"],
+      "@portfolio/config": ["../../packages/config/src/index.ts"]
     }
   },
   "include": [

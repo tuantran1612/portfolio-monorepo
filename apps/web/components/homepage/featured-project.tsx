@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/projects/project-card";
 import type { Project } from "@portfolio/types";
+import { LinkButton } from "@/components/ui/link";
 
 export function FeaturedProjects({ projects }: { projects: Project[] }) {
   return (
@@ -19,11 +20,9 @@ export function FeaturedProjects({ projects }: { projects: Project[] }) {
                   A selection of my recent work
                 </p>
               </div>
-              <Button variant="ghost" asChild>
-                <Link href="/projects">
-                  View all <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              <LinkButton href="/projects" variant="ghost">
+                View all <ArrowRight className="ml-2 h-4 w-4" />
+              </LinkButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projects.map((project) => (

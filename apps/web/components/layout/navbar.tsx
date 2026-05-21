@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { LinkButton } from "../ui/link";
 
 const links = [
   { href: "/", label: "Home" },
@@ -59,9 +60,14 @@ export function Navbar() {
         </nav>
         <div className="flex items-center gap-2">
           {/* Theme toggle */}
-          <Button asChild variant="outline" size="lg" borderRadius="roundPill">
-            <Link href="/contact">Contact with me</Link>
-          </Button>
+          <LinkButton
+            href="/contact"
+            variant="outline"
+            size="lg"
+            borderRadiuss="roundPill"
+          >
+            Let's Connect
+          </LinkButton>
 
           {/* Mobile nav */}
           <Sheet>

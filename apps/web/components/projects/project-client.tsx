@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import type { Project } from '@portfolio/types'
+import type { Category } from '@portfolio/types'
 
 const categories = ['All', 'Frontend', 'Backend', 'Fullstack', 'Mobile']
 

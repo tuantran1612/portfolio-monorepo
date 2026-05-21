@@ -21,9 +21,15 @@ import type { Category } from '@portfolio/types'
 
 const categorySchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Lowercase letters, numbers and hyphens only')
+    .optional()
+    .or(z.literal('')),
 })
 
 type CategoryFormValues = z.infer<typeof categorySchema>
+
 
 export default function CategoriesPage() {
   const [showForm, setShowForm] = useState(false)
@@ -48,24 +54,27 @@ export default function CategoriesPage() {
   })
 
   function handleCreate(values: CategoryFormValues) {
-    createCategory(values, {
-      onSuccess: () => { setShowForm(false); reset() },
-    })
-  }
+  createCategory(
+    { name: values.name, slug: values.slug || undefined },
+    { onSuccess: () => { setShowForm(false); reset() } }
+  )
+}
 
-  function handleUpdate(values: CategoryFormValues) {
-    if (!editingCategory) return
-    updateCategory(
-      { id: editingCategory.id, data: values },
-      { onSuccess: () => { setEditingCategory(null); reset() } }
-    )
-  }
-
-  function handleEdit(category: Category) {
-    setEditingCategory(category)
-    setShowForm(false)
-    reset({ name: category.name })
-  }
+function handleUpdate(values: CategoryFormValues) {
+  if (!editingCategory) return
+  updateCategory(
+    {
+      id: editingCategory.id,
+      data: { name: values.name, slug: values.slug || undefined },
+    },
+    { onSuccess: () => { setEditingCategory(null); reset() } }
+  )
+}
+function handleEdit(category: Category) {
+  setEditingCategory(category)
+  setShowForm(false)
+  reset({ name: category.name, slug: category.slug })
+}
 
   function handleCancel() {
     setShowForm(false)

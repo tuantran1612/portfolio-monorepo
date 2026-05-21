@@ -33,7 +33,7 @@ export function CategoryForm({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CategoryFormProps>({
+  } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: defaultValues?.name || "",
@@ -68,13 +68,11 @@ export function CategoryForm({
           <label className="text-sm font-medium">Slug</label>
           <Input
             placeholder="Define the link category of project"
-           {...register("slug")}
+            {...register("slug")}
             className={cn(errors.slug && "border-destructive")}
           />
           {errors.slug && (
-            <p className="text-xs text-destructive">
-              {errors.slug.message}
-            </p>
+            <p className="text-xs text-destructive">{errors.slug.message}</p>
           )}
         </div>
       </div>

@@ -63,7 +63,7 @@ export function CategoryTable({ categories, onEdit }: CategoryTableProps) {
                 </p>
               </td>
               <td className="px-4 py-3">
-                {category._count.projects && (
+                {category._count?.projects && (
                     category._count.projects
                 )}
               </td>

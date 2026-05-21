@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useUsers, useCreateUser, useDeleteUser } from '@/hooks/useUsers'
+import { useUsers, useCreateUser, useDeleteUser } from '@/hooks/useUser'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 

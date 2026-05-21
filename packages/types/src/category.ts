@@ -8,5 +8,12 @@ export interface Category {
   }
 }
 
-export type CreateCategoryDto = Omit<Category, 'id' | 'createdAt' | '_count'>
-export type UpdateCategoryDto = Partial<CreateCategoryDto>
+export type CreateCategoryDto = {
+  name: string
+  slug?: string  // optional — auto-generated if not provided
+}
+
+export type UpdateCategoryDto = {
+  name?: string
+  slug?: string
+}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(request: NextRequest) {
   const secret = request.headers.get('x-revalidate-secret')
@@ -8,15 +8,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Invalid secret' }, { status: 401 })
   }
 
-  const { path, tag } = await request.json()
+  const { paths } = await request.json()
 
-  if (tag) revalidateTag(tag)
-  if (path) revalidatePath(path)
+  if (Array.isArray(paths)) {
+    paths.forEach((path: string) => revalidatePath(path, 'page'))
+  } else if (typeof paths === 'string') {
+    revalidatePath(paths, 'page')
+  }
 
   return NextResponse.json({
     revalidated: true,
-    path,
-    tag,
+    paths,
     timestamp: new Date().toISOString(),
   })
 }

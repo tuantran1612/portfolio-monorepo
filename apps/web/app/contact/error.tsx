@@ -1,19 +1,20 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { MailX } from 'lucide-react'
+import { useEffect } from "react";
+import { LinkButton } from "@/components/ui/link";
+import { Button } from "@/components/ui/button";
+import { MailX } from "lucide-react";
 
 export default function ContactError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string }
-  reset: () => void
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error)
-  }, [error])
+    console.error(error);
+  }, [error]);
 
   return (
     <div className="container mx-auto px-4 py-24 flex flex-col items-center text-center">
@@ -28,10 +29,10 @@ export default function ContactError({
       </p>
       <div className="flex gap-3">
         <Button onClick={reset}>Try again</Button>
-        <Button variant="outline" asChild>
-          <a href="mailto:your@email.com">Email directly</a>
-        </Button>
+        <LinkButton variant="outline" href="mailto:your@email.com">
+          Email directly
+        </LinkButton>
       </div>
     </div>
-  )
+  );
 }

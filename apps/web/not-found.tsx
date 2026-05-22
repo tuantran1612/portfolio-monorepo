@@ -1,4 +1,4 @@
-import { LinkButton } from '@/components/ui/link-button'
+import { LinkButton } from '@/components/ui/link'
 import { ArrowLeft } from 'lucide-react'
 
 export default function NotFound() {

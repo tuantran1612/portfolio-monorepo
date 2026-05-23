@@ -28,7 +28,7 @@ export function Hero() {
   return (
     <section
       ref={containerRef}
-      className="min-h-[90vh] flex flex-col justify-center py-24 md:py-32 max-w-4xl"
+      className="min-h-[93vh] flex flex-col justify-center py-24 md:py-32 max-w-4xl"
     >
       <div className="hero-badge mb-6">
         <Badge variant="secondary" className="text-xs px-3 py-1">

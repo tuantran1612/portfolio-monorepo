@@ -36,10 +36,10 @@ export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
   if (projects.length === 0) return null
 
   return (
-    <section ref={sectionRef} className="py-20 border-t border-border/40">
+    <section ref={sectionRef} className="py-20 rounded-md bg-black">
       <div className="flex items-end justify-between mb-10">
         <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase text-white tracking-widest mb-2">
             Selected work
           </p>
           <h2 className="text-3xl font-bold tracking-tight">Featured Projects</h2>

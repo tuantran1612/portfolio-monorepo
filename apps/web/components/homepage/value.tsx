@@ -6,7 +6,6 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Code2, Zap, Layers } from 'lucide-react'
 
-// register inside module scope but after import
 gsap.registerPlugin(ScrollTrigger)
 
 const values = [
@@ -14,24 +13,21 @@ const values = [
     number: '01',
     icon: Code2,
     title: 'Clean Architecture',
-    description:
-      'I write code that is readable, maintainable, and scalable. Every layer has a clear responsibility — from database schema to UI component.',
+    description: 'I write code that is readable, maintainable, and scalable. Every layer has a clear responsibility — from database schema to UI component.',
     tags: ['NestJS', 'Prisma', 'TypeScript'],
   },
   {
     number: '02',
     icon: Zap,
     title: 'Fast Delivery',
-    description:
-      'I ship working products quickly without sacrificing quality. CI/CD pipelines, Docker, and automated testing keep every release smooth.',
+    description: 'I ship working products quickly without sacrificing quality. CI/CD pipelines, Docker, and automated testing keep every release smooth.',
     tags: ['Docker', 'GitHub Actions', 'Railway'],
   },
   {
     number: '03',
     icon: Layers,
     title: 'Full Stack Ownership',
-    description:
-      'From API design to pixel-perfect UI — I handle the entire stack. No handoff gaps, no communication overhead, just end-to-end delivery.',
+    description: 'From API design to pixel-perfect UI — I handle the entire stack. No handoff gaps, no communication overhead, just end-to-end delivery.',
     tags: ['Next.js', 'REST API', 'PostgreSQL'],
   },
 ]
@@ -40,27 +36,37 @@ export function Values() {
   const sectionRef = useRef<HTMLDivElement>(null)
 
   useGSAP(
-    () => {
-      if (!sectionRef.current) return
+  () => {
+    if (!sectionRef.current) return
 
-      const cards = sectionRef.current.querySelectorAll('.value-card')
-      if (!cards.length) return
+    const cards = gsap.utils.toArray<HTMLElement>('.value-card')
+    if (!cards.length) return
 
-      gsap.from(cards, {
-        opacity: 0,
-        y: 60,
-        duration: 0.7,
-        stagger: 0.15,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top 75%',
-          once: true,
-        },
+    gsap.set(cards, { opacity: 0, y: 80 })
+
+    // pin section, scrub each card tied to scroll
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: `+=${cards.length * 400}`,
+        pin: true,
+        pinSpacing: true,
+        scrub: 1, // 1 = smooth scrub, higher = more lag/smoothness
+      },
+    })
+
+    cards.forEach((card) => {
+      tl.to(card, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: 'power2.out',
       })
-    },
-    { scope: sectionRef, dependencies: [] }
-  )
+    })
+  },
+  { scope: sectionRef, dependencies: [] }
+)
 
   return (
     <section ref={sectionRef} className="py-20 border-t border-border/40">

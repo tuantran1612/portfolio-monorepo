@@ -3,7 +3,7 @@
   "author": "",
   "license": "ISC",
   "private": true,
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@11.2.2",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",

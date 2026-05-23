@@ -16,12 +16,14 @@ interface Project {
   id: string;
   title: string;
   description: string;
+  slug:string;
   category: Category;
   techStack: string[];
   imageUrl?: string;
   liveUrl?: string;
   repoUrl?: string;
   featured: boolean;
+  content?:string;
 }
 
 interface ProjectCardProps {
@@ -52,9 +54,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-lg leading-tight">
-            {project.title}
-          </h3>
+          <Link href={`/projects/${project.slug}`}>
+            <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors">
+              {project.title}
+            </h3>
+          </Link>
           <Badge variant="secondary" className="shrink-0 text-xs">
             {project.category.name}
           </Badge>

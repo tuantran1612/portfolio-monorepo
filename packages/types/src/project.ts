@@ -3,7 +3,9 @@ import type { Category } from './category'
 export interface Project {
   id: string
   title: string
+  slug: string
   description: string
+  content?: string
   category: Category
   categoryId: string
   techStack: string[]
@@ -17,7 +19,9 @@ export interface Project {
 
 export type CreateProjectDto = {
   title: string
+  slug?: string
   description: string
+  content?: string
   categoryId: string
   techStack: string[]
   imageUrl?: string

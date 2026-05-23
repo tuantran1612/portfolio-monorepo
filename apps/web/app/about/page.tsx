@@ -1,40 +1,44 @@
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
+export const metadata = {
+  title: "About",
+  description:
+    "Learn more about Tuan Tran — full stack developer based in Ho Chi Minh City.",
+};
 const skills = {
-  Frontend: ['Next.js', 'React', 'TypeScript', 'TailwindCSS', 'Shadcn/UI'],
-  Backend: ['NestJS', 'Node.js', 'Prisma', 'REST API', 'JWT'],
-  Database: ['MongoDB', 'PostgreSQL', 'Redis'],
-  DevOps: ['Docker', 'GitHub Actions', 'Railway', 'Vercel', 'Linux'],
-}
+  Frontend: ["Next.js", "React", "TypeScript", "TailwindCSS", "Shadcn/UI"],
+  Backend: ["NestJS", "Node.js", "Prisma", "REST API", "JWT"],
+  Database: ["MongoDB", "PostgreSQL", "Redis"],
+  DevOps: ["Docker", "GitHub Actions", "Railway", "Vercel", "Linux"],
+};
 
 const experiences = [
   {
-    role: 'Mid Full Stack Developer',
-    company: 'Your Company',
-    period: '2023 — Present',
-    description: 'Building scalable web applications with NestJS and Next.js.',
+    role: "Mid Full Stack Developer",
+    company: "Your Company",
+    period: "2023 — Present",
+    description: "Building scalable web applications with NestJS and Next.js.",
   },
   {
-    role: 'Junior Frontend Developer',
-    company: 'Previous Company',
-    period: '2022 — 2023',
-    description: 'Developed responsive UIs with React and TailwindCSS.',
+    role: "Junior Frontend Developer",
+    company: "Previous Company",
+    period: "2022 — 2023",
+    description: "Developed responsive UIs with React and TailwindCSS.",
   },
-]
+];
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-3xl">
-
       {/* Header */}
       <div className="mb-12">
         <h1 className="text-4xl font-bold tracking-tight mb-4">About Me</h1>
         <p className="text-lg text-muted-foreground leading-relaxed">
-          I'm a full stack developer based in Ho Chi Minh City, Vietnam.
-          I enjoy building products from scratch — from database schema to
-          deployed UI. I care about clean code, good architecture, and
-          shipping things that actually work.
+          I'm a full stack developer based in Ho Chi Minh City, Vietnam. I enjoy
+          building products from scratch — from database schema to deployed UI.
+          I care about clean code, good architecture, and shipping things that
+          actually work.
         </p>
       </div>
 
@@ -79,9 +83,13 @@ export default function AboutPage() {
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <h3 className="font-semibold">{exp.role}</h3>
                   <span className="text-muted-foreground">@</span>
-                  <span className="text-primary font-medium">{exp.company}</span>
+                  <span className="text-primary font-medium">
+                    {exp.company}
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground mb-2">{exp.period}</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {exp.period}
+                </p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {exp.description}
                 </p>
@@ -100,11 +108,12 @@ export default function AboutPage() {
           <div className="w-2 h-2 rounded-full bg-primary mt-2" />
           <div>
             <h3 className="font-semibold">Bachelor of Software Engineering</h3>
-            <p className="text-sm text-muted-foreground">Your University · 2019 — 2023</p>
+            <p className="text-sm text-muted-foreground">
+              Your University · 2019 — 2023
+            </p>
           </div>
         </div>
       </section>
-
     </div>
-  )
+  );
 }

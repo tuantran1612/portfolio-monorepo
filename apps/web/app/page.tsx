@@ -2,16 +2,10 @@ import { projectService } from '@/services/project.service'
 import { categoryService } from '@/services/category.service'
 import { Hero } from '@/components/homepage/hero'
 import { FeaturedProjects } from '@/components/homepage/featured-project'
+import { Values } from '@/components/homepage/value'
 import { CategoryBrowse } from '@/components/homepage/category-browse'
 import { ShortBio } from '@/components/homepage/short-bio'
-
-async function getFeaturedProjects() {
-  try {
-    return await projectService.getFeatured()
-  } catch {
-    return []
-  }
-}
+import { PersonJsonLd } from '@/components/seo/json-ld'
 
 export default async function HomePage() {
   const [featuredProjects, categories] = await Promise.all([
@@ -21,10 +15,14 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero />
-      <FeaturedProjects projects={featuredProjects} />
-      <CategoryBrowse categories={categories} />
-      <ShortBio />
+      <PersonJsonLd />
+      <div className="container mx-auto px-4">
+        <Hero />
+        <FeaturedProjects projects={featuredProjects} />
+        <Values />
+        <CategoryBrowse categories={categories} />
+        <ShortBio />
+      </div>
     </>
   )
 }

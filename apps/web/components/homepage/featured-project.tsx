@@ -1,39 +1,91 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProjectCard } from "@/components/projects/project-card";
-import type { Project } from "@portfolio/types";
-import { LinkButton } from "@/components/ui/link";
+'use client'
 
-export function FeaturedProjects({ projects }: { projects: Project[] }) {
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Autoplay, A11y } from 'swiper/modules'
+import { ArrowRight, ArrowLeft as ArrowLeftIcon } from 'lucide-react'
+import { ProjectCard } from '@/components/projects/project-card'
+import { LinkButton } from '@/components/ui/link'
+import type { Project } from '@portfolio/types'
+
+gsap.registerPlugin(ScrollTrigger)
+
+interface FeaturedProjectsProps {
+  projects: Project[]
+}
+
+export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
+  const sectionRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(() => {
+    gsap.from(sectionRef.current, {
+      opacity: 0,
+      y: 60,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top 80%',
+      },
+    })
+  }, { scope: sectionRef })
+
+  if (projects.length === 0) return null
+
   return (
-    <>
-      {projects.length > 0 ? (
-        <section className="py-12 featuredWrapper">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight">
-                  Featured Projects <sub>({projects.length})</sub>
-                </h2>
-                <p className="text-muted-foreground text-sm mt-1">
-                  A selection of my recent work
-                </p>
-              </div>
-              <LinkButton href="/projects" variant="ghost">
-                View all <ArrowRight className="ml-2 h-4 w-4" />
-              </LinkButton>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : (
-        <></>
-      )}
-    </>
-  );
+    <section ref={sectionRef} className="py-20 border-t border-border/40">
+      <div className="flex items-end justify-between mb-10">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-2">
+            Selected work
+          </p>
+          <h2 className="text-3xl font-bold tracking-tight">Featured Projects</h2>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            className="swiper-prev-btn w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors"
+          >
+            <ArrowLeftIcon className="h-4 w-4" />
+          </button>
+          <button
+            className="swiper-next-btn w-10 h-10 rounded-full border border-border flex items-center justify-center hover:bg-accent transition-colors"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <Swiper
+        modules={[Navigation, Autoplay, A11y]}
+        spaceBetween={24}
+        slidesPerView={1}
+        navigation={{
+          prevEl: '.swiper-prev-btn',
+          nextEl: '.swiper-next-btn',
+        }}
+        autoplay={{ delay: 4000, disableOnInteraction: true }}
+        breakpoints={{
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+        }}
+        className="!overflow-visible"
+      >
+        {projects.map((project) => (
+          <SwiperSlide key={project.id}>
+            <ProjectCard project={project} />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      <div className="mt-10 flex justify-center">
+        <LinkButton href="/projects" variant="outline">
+          View all projects
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </LinkButton>
+      </div>
+    </section>
+  )
 }

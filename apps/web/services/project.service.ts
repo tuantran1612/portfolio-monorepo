@@ -5,38 +5,45 @@ import type {
   UpdateProjectDto,
 } from "@portfolio/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 export const projectService = {
   getFeatured: async (): Promise<Project[]> => {
     const res = await fetch(`${API_URL}/projects?featured=true`, {
       next: { revalidate: 60 }, // revalidate every 60s
-    })
-    if (!res.ok) throw new Error('Failed to fetch featured projects')
-    return res.json()
+    });
+    if (!res.ok) throw new Error("Failed to fetch featured projects");
+    return res.json();
   },
 
   getAll: async (category?: string, featured?: boolean): Promise<Project[]> => {
-    const params = new URLSearchParams()
-    if (category) params.append('category', category)
-    if (featured !== undefined) params.append('featured', String(featured))
-    const query = params.toString()
-    const res = await fetch(`${API_URL}/projects${query ? `?${query}` : ''}`, {
+    const params = new URLSearchParams();
+    if (category) params.append("category", category);
+    if (featured !== undefined) params.append("featured", String(featured));
+    const query = params.toString();
+    const res = await fetch(`${API_URL}/projects${query ? `?${query}` : ""}`, {
       next: { revalidate: 30 }, // revalidate every 30s
-    })
-    if (!res.ok) throw new Error('Failed to fetch projects')
-    return res.json()
+    });
+    if (!res.ok) throw new Error("Failed to fetch projects");
+    return res.json();
+  },
+  getBySlug: async (slug: string): Promise<Project> => {
+    const res = await fetch(`${API_URL}/projects/slug/${slug}`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error("Project not found");
+    return res.json();
   },
 
   getOne: (id: string): Promise<Project> =>
     axiosInstance.get(`/projects/${id}`),
 
   create: (data: CreateProjectDto): Promise<Project> =>
-    axiosInstance.post('/projects', data),
+    axiosInstance.post("/projects", data),
 
   update: (id: string, data: UpdateProjectDto): Promise<Project> =>
     axiosInstance.patch(`/projects/${id}`, data),
 
   remove: (id: string): Promise<void> =>
     axiosInstance.delete(`/projects/${id}`),
-}
+};

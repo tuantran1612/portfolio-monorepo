@@ -3,6 +3,10 @@ import { categoryService } from '@/services/category.service'
 import { projectService } from '@/services/project.service'
 import dynamic from 'next/dynamic'
 
+export const metadata = {
+  title: 'Projects',
+  description: 'A collection of projects built by Tuan Tran — full stack developer.',
+}
 const ProjectsClient = dynamic(
   () => import('@/components/projects/project-client').then(m => ({ default: m.ProjectsClient })),
   {

@@ -6,6 +6,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Code2, Zap, Layers } from 'lucide-react'
 
+// register inside module scope but after import
 gsap.registerPlugin(ScrollTrigger)
 
 const values = [
@@ -38,19 +39,28 @@ const values = [
 export function Values() {
   const sectionRef = useRef<HTMLDivElement>(null)
 
-  useGSAP(() => {
-    gsap.from('.value-card', {
-      opacity: 0,
-      y: 60,
-      duration: 0.7,
-      stagger: 0.15,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top 75%',
-      },
-    })
-  }, { scope: sectionRef })
+  useGSAP(
+    () => {
+      if (!sectionRef.current) return
+
+      const cards = sectionRef.current.querySelectorAll('.value-card')
+      if (!cards.length) return
+
+      gsap.from(cards, {
+        opacity: 0,
+        y: 60,
+        duration: 0.7,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 75%',
+          once: true,
+        },
+      })
+    },
+    { scope: sectionRef, dependencies: [] }
+  )
 
   return (
     <section ref={sectionRef} className="py-20 border-t border-border/40">

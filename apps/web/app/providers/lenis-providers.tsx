@@ -1,43 +1,70 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react'
-import Lenis from 'lenis'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useEffect, useRef } from "react";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 export function LenisProvider({ children }: { children: React.ReactNode }) {
-  const lenisRef = useRef<Lenis | null>(null)
+  const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-    })
+      syncTouch: true,
+    });
 
-    lenisRef.current = lenis
+    lenisRef.current = lenis;
 
-    // sync lenis with GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update)
+    // critical — use ScrollTrigger's scroll position not window scroll
+    lenis.on("scroll", (e: any) => {
+      ScrollTrigger.update();
+    });
 
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000)
-    })
+    // use gsap ticker to drive lenis
+    const tickerCallback = (time: number) => {
+      lenis.raf(time * 1000);
+    };
 
-    gsap.ticker.lagSmoothing(0)
+    gsap.ticker.add(tickerCallback);
+    gsap.ticker.lagSmoothing(0);
 
-    // refresh ScrollTrigger after fonts and images load
-    window.addEventListener('load', () => ScrollTrigger.refresh())
+    // tell ScrollTrigger to use lenis scroll position
+    ScrollTrigger.scrollerProxy(document.body, {
+      scrollTop(value) {
+        if (arguments.length && value !== undefined) {
+          lenis.scrollTo(value, { immediate: true });
+        }
+        return lenis.scroll;
+      },
+      getBoundingClientRect() {
+        return {
+          top: 0,
+          left: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        };
+      },
+      pinType: "transform",
+    });
+
+    ScrollTrigger.addEventListener("refresh", () => lenis.resize());
+    ScrollTrigger.refresh();
+
+    window.addEventListener("load", () => ScrollTrigger.refresh());
 
     return () => {
-      lenis.destroy()
-      gsap.ticker.remove((time) => lenis.raf(time * 1000))
-      ScrollTrigger.getAll().forEach((t) => t.kill())
-    }
-  }, [])
+      lenis.destroy();
+      gsap.ticker.remove(tickerCallback);
+      ScrollTrigger.scrollerProxy(document.body, undefined as any);
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+      ScrollTrigger.removeEventListener("refresh", () => lenis.resize());
+    };
+  }, []);
 
-  return <>{children}</>
+  return <>{children}</>;
 }

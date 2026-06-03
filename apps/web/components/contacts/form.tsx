@@ -12,7 +12,6 @@ import { useSubmitContact } from "@/hook/useContact";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-
 const contactSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
@@ -84,9 +83,9 @@ export default function ContactForm() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Contact info */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-row lg:flex-col gap-4 lg:gap-8 overflow-x-auto pb-2 lg:pb-0">
           {contactInfo.map((item) => (
             <div key={item.label} className="flex gap-4 items-start">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -97,8 +96,7 @@ export default function ContactForm() {
                 {item.href ? (
                   <Link
                     href={item.href!}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {item.value}
                   </Link>
                 ) : (
@@ -113,8 +111,7 @@ export default function ContactForm() {
         <div className="lg:col-span-2">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-6"
-          >
+            className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="flex flex-col gap-2">
@@ -154,7 +151,7 @@ export default function ContactForm() {
                 placeholder="Tell me about your project or just say hi..."
                 className={cn(
                   "min-h-40 resize-none",
-                  errors.message && "border-destructive",
+                  errors.message && "border-destructive"
                 )}
                 {...register("message")}
               />
@@ -169,8 +166,7 @@ export default function ContactForm() {
               type="submit"
               size="lg"
               className="w-full md:w-auto"
-              disabled={isPending}
-            >
+              disabled={isPending}>
               {isPending ? "Sending..." : "Send message"}
             </Button>
           </form>

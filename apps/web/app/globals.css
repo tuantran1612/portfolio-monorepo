@@ -1,10 +1,14 @@
-@import 'swiper/css';
-@import 'swiper/css/navigation';
+@import "swiper/css";
+@import "swiper/css/navigation";
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #007a55;
+  --sub: #a6aba8;
+  --secondary: #171412;
+  --background: #fbf9ef;
+  --foreground: #171412;
+  --font-geist-mono: "Geist Mono", monospace;
 }
 
 @theme inline {
@@ -18,6 +22,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #0ee790;
   }
 }
 
@@ -25,4 +30,24 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+/* prevent horizontal scroll on mobile */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* hide cursor on touch devices */
+@media (max-width: 767px) {
+  * {
+    cursor: auto !important;
+  }
+}
+
+/* desktop cursor */
+@media (min-width: 768px) {
+  * {
+    cursor: none !important;
+  }
 }

@@ -6,7 +6,9 @@ import { Providers } from "@/app/providers/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { Cursor } from "@/components/ui/cursor";
 import { LenisProvider } from "./providers/lenis-providers";
+import { PageTransition } from "@/components/ui/page-transition";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -64,11 +66,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <Cursor />
         <Providers>
           <LenisProvider>
             <div className="min-h-screen flex flex-col bg-background text-foreground">
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 pt-16">
+                <PageTransition>{children}</PageTransition>
+              </main>
               <Footer />
             </div>
             <Toaster />

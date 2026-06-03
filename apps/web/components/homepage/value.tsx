@@ -1,72 +1,77 @@
-'use client'
+"use client";
 
-import { useRef } from 'react'
-import { useGSAP } from '@gsap/react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Code2, Zap, Layers } from 'lucide-react'
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Code2, Zap, Layers } from "lucide-react";
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger);
 
 const values = [
   {
-    number: '01',
+    number: "01",
     icon: Code2,
-    title: 'Clean Architecture',
-    description: 'I write code that is readable, maintainable, and scalable. Every layer has a clear responsibility — from database schema to UI component.',
-    tags: ['NestJS', 'Prisma', 'TypeScript'],
+    title: "Clean Architecture",
+    description:
+      "I write code that is readable, maintainable, and scalable. Every layer has a clear responsibility — from database schema to UI component.",
+    tags: ["NestJS", "Prisma", "TypeScript"],
   },
   {
-    number: '02',
+    number: "02",
     icon: Zap,
-    title: 'Fast Delivery',
-    description: 'I ship working products quickly without sacrificing quality. CI/CD pipelines, Docker, and automated testing keep every release smooth.',
-    tags: ['Docker', 'GitHub Actions', 'Railway'],
+    title: "Fast Delivery",
+    description:
+      "I ship working products quickly without sacrificing quality. CI/CD pipelines, Docker, and automated testing keep every release smooth.",
+    tags: ["Docker", "GitHub Actions", "Railway"],
   },
   {
-    number: '03',
+    number: "03",
     icon: Layers,
-    title: 'Full Stack Ownership',
-    description: 'From API design to pixel-perfect UI — I handle the entire stack. No handoff gaps, no communication overhead, just end-to-end delivery.',
-    tags: ['Next.js', 'REST API', 'PostgreSQL'],
+    title: "Full Stack Ownership",
+    description:
+      "From API design to pixel-perfect UI — I handle the entire stack. No handoff gaps, no communication overhead, just end-to-end delivery.",
+    tags: ["Next.js", "REST API", "PostgreSQL"],
   },
-]
+];
 
 export function Values() {
-  const sectionRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
-  () => {
-    if (!sectionRef.current) return
+    () => {
+      if (!sectionRef.current) return;
 
-    const cards = gsap.utils.toArray<HTMLElement>('.value-card')
-    if (!cards.length) return
+      const cards = gsap.utils.toArray<HTMLElement>(".value-card");
+      if (!cards.length) return;
 
-    gsap.set(cards, { opacity: 0, y: 80 })
+      gsap.set(cards, { opacity: 0, y: 80 });
 
-    // pin section, scrub each card tied to scroll
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top top',
-        end: `+=${cards.length * 400}`,
-        pin: true,
-        pinSpacing: true,
-        scrub: 1, // 1 = smooth scrub, higher = more lag/smoothness
-      },
-    })
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          scroller: document.body, // use body as scroller for lenis
+          start: "top top",
+          end: `+=${cards.length * 400}`,
+          pin: true,
+          pinType: "transform", // use transform not fixed for lenis compat
+          pinSpacing: true,
+          scrub: 1,
+          anticipatePin: 1, // prevents jump when pin starts
+        },
+      });
 
-    cards.forEach((card) => {
-      tl.to(card, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: 'power2.out',
-      })
-    })
-  },
-  { scope: sectionRef, dependencies: [] }
-)
+      cards.forEach((card) => {
+        tl.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power2.out",
+        });
+      });
+    },
+    { scope: sectionRef, dependencies: [] }
+  );
 
   return (
     <section ref={sectionRef} className="py-20 border-t border-border/40">
@@ -77,12 +82,11 @@ export function Values() {
         <h2 className="text-3xl font-bold tracking-tight">Values I deliver</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {values.map((value) => (
           <div
             key={value.number}
-            className="value-card group relative p-8 rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 bg-card"
-          >
+            className="value-card group relative p-8 rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 bg-card">
             <span className="absolute top-6 right-6 text-4xl font-black text-foreground/5 group-hover:text-primary/10 transition-colors">
               {value.number}
             </span>
@@ -101,8 +105,7 @@ export function Values() {
               {value.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground"
-                >
+                  className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
                   {tag}
                 </span>
               ))}
@@ -111,5 +114,5 @@ export function Values() {
         ))}
       </div>
     </section>
-  )
+  );
 }

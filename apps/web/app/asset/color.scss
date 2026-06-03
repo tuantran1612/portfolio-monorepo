@@ -1,0 +1,16 @@
+.bg-primary {
+  background: var(--primary);
+}
+.bg-secondary {
+  background: var(--secondary);
+  color: #fff;
+}
+.text-sub {
+  color: rgb(from var(--sub) r g b / 40%);
+}
+.text-primary {
+  color: var(--primary);
+}
+.text-success {
+  color: var(--color-emerald-700, #007a55);
+}

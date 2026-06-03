@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Moon, Sun, Menu } from "lucide-react";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LinkButton } from "../ui/link";
 
 const links = [
@@ -15,87 +12,129 @@ const links = [
   { href: "/projects", label: "Projects" },
   { href: "/about", label: "About" },
 ];
-
 export function Navbar() {
   const pathname = usePathname();
-  const [isSrolling, setIsScrolling] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const lastScrollY = useRef(0);
 
+  // close mobile menu on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  // hide/show on scroll
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolling(window.scrollY > 0);
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 20);
+      if (currentScrollY < lastScrollY.current || currentScrollY < 80) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+        setVisible(false);
+      }
+      lastScrollY.current = currentScrollY;
     };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header
-      className={`fixed top-0 z-50 w-full border-b border-border/90 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transiton-all duration-[350ms] lg:w-[50%] lg:mx-auto lg:start-0 lg:end-0 lg:top-8 lg:border lg:border-gray-900 lg:rounded-4xl transiton-all duration-[300ms]`}
-    >
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="font-bold text-xl tracking-tight">
-          tuan<span className="text-primary">.</span>dev
-        </Link>
+    <>
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          visible ? "translate-y-0" : "-translate-y-full",
+          scrolled
+            ? "bg-background/95 backdrop-blur shadow-sm"
+            : "bg-transparent"
+        )}>
+        <div className="mx-auto px-4 h-16 flex items-center justify-between md:justify-start">
+          <Link
+            href="/"
+            className="font-bold text-xl lg:text-2xl tracking-tight">
+            <span className="text-success">A.</span>T.
+          </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {links.map((link) => (
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-6 md:ml-auto">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "text-sm md:text-base font-medium transition-colors hover:text-primary",
+                  pathname === link.href
+                    ? "text-primary"
+                    : "text-muted-foreground"
+                )}>
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2 md:ml-8 lg:ml-24">
+            <LinkButton
+              href="/contact"
+              variant="secondary"
+              size="default"
+              borderRadiuss="sm">
+              Let's Connect
+            </LinkButton>
+
+            {/* Mobile menu toggle */}
+            <button
+              className="md:hidden inline-flex items-center justify-center rounded-md w-9 h-9 hover:bg-accent transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}>
+              {mobileOpen ? (
+                <X className="h-5 w-5" size={18} />
+              ) : (
+                <Menu className="h-5 w-5" size={18} />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile menu overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 md:hidden transition-all duration-300",
+          mobileOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        )}>
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-background/95 backdrop-blur"
+          onClick={() => setMobileOpen(false)}
+        />
+
+        {/* Menu content */}
+        <nav
+          className={cn(
+            "absolute top-16 left-0 right-0 flex flex-col px-4 py-6 gap-1 transition-all duration-300",
+            mobileOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-4 opacity-0"
+          )}>
+          {links.map((link, i) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
+                "text-lg font-medium py-3 px-4 rounded-lg transition-colors",
                 pathname === link.href
-                  ? "text-primary"
-                  : "text-muted-foreground",
+                  ? "text-primary bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
-            >
+              style={{ transitionDelay: mobileOpen ? `${i * 50}ms` : "0ms" }}>
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
-          {/* Theme toggle */}
-          <LinkButton
-            href="/contact"
-            variant="outline"
-            size="lg"
-            borderRadiuss="roundPill"
-          >
-            Let's Connect
-          </LinkButton>
-
-          {/* Mobile nav */}
-          <Sheet>
-            <SheetTrigger className="md:hidden inline-flex items-center justify-center rounded-md w-9 h-9 hover:bg-accent hover:text-accent-foreground transition-colors">
-              <Menu className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <nav className="flex flex-col gap-4 mt-8">
-                {links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "text-sm font-medium transition-colors hover:text-primary md:text-base lg:text-lg",
-                      pathname === link.href
-                        ? "text-primary"
-                        : "text-muted-foreground",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            </SheetContent>
-          </Sheet>
-        </div>
       </div>
-    </header>
+    </>
   );
 }

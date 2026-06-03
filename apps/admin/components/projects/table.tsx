@@ -40,6 +40,9 @@ export function ProjectTable({ projects, onEdit }: ProjectTableProps) {
               Title
             </th>
             <th className="text-left px-4 py-3 font-medium text-muted-foreground">
+              Slug
+            </th>
+            <th className="text-left px-4 py-3 font-medium text-muted-foreground">
               Category
             </th>
             <th className="text-left px-4 py-3 font-medium text-muted-foreground">
@@ -59,14 +62,18 @@ export function ProjectTable({ projects, onEdit }: ProjectTableProps) {
               key={project.id}
               className={cn(
                 "border-b border-border/30 transition-colors hover:bg-muted/30",
-                i === projects.length - 1 && "border-b-0",
-              )}
-            >
+                i === projects.length - 1 && "border-b-0"
+              )}>
               <td className="px-4 py-3">
                 <p className="font-medium">{project.title}</p>
                 <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                   {project.description}
                 </p>
+              </td>
+              <td className="px-4 py-3">
+                <Badge variant="outline" className="text-xs font-mono">
+                  {project.slug}
+                </Badge>
               </td>
               <td className="px-4 py-3">
                 <Badge variant="secondary" className="text-xs">
@@ -95,8 +102,7 @@ export function ProjectTable({ projects, onEdit }: ProjectTableProps) {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => onEdit(project)}
-                  >
+                    onClick={() => onEdit(project)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                   <Button
@@ -104,8 +110,7 @@ export function ProjectTable({ projects, onEdit }: ProjectTableProps) {
                     size="icon"
                     className="h-8 w-8 text-destructive hover:text-destructive"
                     onClick={() => handleDelete(project.id)}
-                    disabled={deletingId === project.id}
-                  >
+                    disabled={deletingId === project.id}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>

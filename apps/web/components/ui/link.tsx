@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface LinkButtonProps {
   href: string;
   children: React.ReactNode;
-  variant?: "default" | "outline" | "ghost";
+  variant?: "default" | "secondary" | "outline" | "ghost";
   borderRadiuss?: "default" | "sm" | "xs" | "lg" | "roundPill";
   size?: "default" | "sm" | "lg";
   className?: string;
@@ -13,6 +13,8 @@ interface LinkButtonProps {
 
 const variantClasses = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90",
+  secondary:
+    "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
   outline:
     "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
   ghost: "hover:bg-accent hover:text-accent-foreground",
@@ -25,11 +27,11 @@ const sizeClasses = {
 };
 
 const borderRadius = {
-  default: "round-1",
-  xs: "round-2",
-  sm: "round-3",
-  lg: "round-4",
-  roundPill: "round-pill",
+  default: "rounded-xs",
+  xs: "rounded-sm",
+  sm: "rounded-md",
+  lg: "rounded-lg",
+  roundPill: "rounded-4xl",
 };
 export function LinkButton({
   href,
@@ -49,9 +51,8 @@ export function LinkButton({
         variantClasses[variant],
         sizeClasses[size],
         borderRadius[borderRadiuss],
-        className,
-      )}
-    >
+        className
+      )}>
       {children}
     </Link>
   );

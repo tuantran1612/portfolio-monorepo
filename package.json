@@ -4,7 +4,14 @@
   "license": "ISC",
   "private": true,
   "packageManager": "pnpm@11.2.2",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0",
+    "npm": "please-use-pnpm",
+    "yarn": "please-use-pnpm"
+  },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",

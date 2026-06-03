@@ -1,0 +1,26 @@
+.project__card {
+  &-featured {
+    background: var(--background);
+    border-radius: 16px;
+    padding: 16px;
+    .aspect-video {
+      width: 100%;
+      padding-bottom: 68%;
+      border-radius: 8px;
+      img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    }
+    @media (min-width: 992px) {
+      width: 80%;
+      margin: 0 auto;
+    }
+    @media (min-width: 1280px) {
+      width: 65%;
+    }
+  }
+}

@@ -17,11 +17,10 @@ export default async function HomePage() {
     <>
       <PersonJsonLd />
       <Hero />
-      <section className="rounded-t-lg bg-black">
+      <section className="">
         <FeaturedProjects projects={featuredProjects} />
-        <Values />
-        <CategoryBrowse categories={categories} />
         <ShortBio />
+        <Values />
       </section>
     </>
   );

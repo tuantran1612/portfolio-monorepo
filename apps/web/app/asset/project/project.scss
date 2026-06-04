@@ -3,6 +3,9 @@
     background: var(--background);
     border-radius: 16px;
     padding: 16px;
+    &-list {
+      width: 100%;
+    }
     .aspect-video {
       width: 100%;
       padding-bottom: 68%;

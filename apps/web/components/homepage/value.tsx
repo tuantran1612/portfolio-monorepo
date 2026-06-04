@@ -4,34 +4,27 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Code2, Zap, Layers } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const values = [
   {
-    number: "01",
-    icon: Code2,
-    title: "Clean Architecture",
+    num: "01",
+    title: "Frontend Development",
     description:
-      "I write code that is readable, maintainable, and scalable. Every layer has a clear responsibility — from database schema to UI component.",
-    tags: ["NestJS", "Prisma", "TypeScript"],
+      "Building modern web applications with a focus on scalability, maintainability, and performance. From responsive layouts to reusable component architectures, every detail is crafted to deliver a seamless experience across all devices.",
   },
   {
-    number: "02",
-    icon: Zap,
-    title: "Fast Delivery",
+    num: "02",
+    title: "Motion & Interaction",
     description:
-      "I ship working products quickly without sacrificing quality. CI/CD pipelines, Docker, and automated testing keep every release smooth.",
-    tags: ["Docker", "GitHub Actions", "Railway"],
+      "Designing meaningful animations and interactive experiences that guide users naturally through a product. Smooth transitions, micro-interactions, and scroll-based effects are used to create interfaces that feel engaging and intuitive.",
   },
   {
-    number: "03",
-    icon: Layers,
-    title: "Full Stack Ownership",
+    num: "03",
+    title: "Optimization",
     description:
-      "From API design to pixel-perfect UI — I handle the entire stack. No handoff gaps, no communication overhead, just end-to-end delivery.",
-    tags: ["Next.js", "REST API", "PostgreSQL"],
+      "Creating fast, accessible, and search-friendly websites that perform reliably in real-world conditions. From Core Web Vitals and SEO best practices to accessibility standards, every project is optimized for both users and businesses.",
   },
 ];
 
@@ -40,78 +33,61 @@ export function Values() {
 
   useGSAP(
     () => {
-      if (!sectionRef.current) return;
-
-      const cards = gsap.utils.toArray<HTMLElement>(".value-card");
-      if (!cards.length) return;
-
-      gsap.set(cards, { opacity: 0, y: 80 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          scroller: document.body, // use body as scroller for lenis
-          start: "top top",
-          end: `+=${cards.length * 400}`,
-          pin: true,
-          pinType: "transform", // use transform not fixed for lenis compat
-          pinSpacing: true,
-          scrub: 1,
-          anticipatePin: 1, // prevents jump when pin starts
-        },
-      });
-
-      cards.forEach((card) => {
-        tl.to(card, {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power2.out",
+      gsap.utils.toArray<HTMLElement>(".value-row").forEach((row) => {
+        ScrollTrigger.create({
+          trigger: row,
+          start: "top 50%",
+          end: "bottom 50%",
+          toggleClass: "is-visible",
         });
       });
     },
-    { scope: sectionRef, dependencies: [] }
+    { scope: sectionRef }
   );
 
   return (
-    <section ref={sectionRef} className="py-20 border-t border-border/40">
-      <div className="mb-12">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest mb-2">
-          What I bring
-        </p>
-        <h2 className="text-3xl font-bold tracking-tight">Values I deliver</h2>
-      </div>
+    <section
+      ref={sectionRef}
+      className="min-h-screen flex flex-col justify-center px-6 md:px-12 py-16">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="values-header flex items-start justify-between mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.05]">
+            What I can
+            <br />
+            <em className="font-light text-muted-foreground not-italic">
+              help you with
+            </em>
+          </h2>
+          <span className="font-mono text-xs text-muted-foreground mt-2">
+            02 · services
+          </span>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {values.map((value) => (
-          <div
-            key={value.number}
-            className="value-card group relative p-8 rounded-2xl border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 bg-card">
-            <span className="absolute top-6 right-6 text-4xl font-black text-foreground/5 group-hover:text-primary/10 transition-colors">
-              {value.number}
-            </span>
-
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
-              <value.icon className="h-5 w-5 text-primary" />
-            </div>
-
-            <h3 className="text-lg font-semibold mb-3">{value.title}</h3>
-
-            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              {value.description}
-            </p>
-
-            <div className="flex flex-wrap gap-2">
-              {value.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
-                  {tag}
+        {/* List */}
+        <div className="value-list flex flex-col">
+          {values.map((value) => (
+            <div
+              key={value.num}
+              className="value-row grid grid-cols-[56px_1fr_40px] md:grid-cols-[64px_1fr_48px] items-start gap-6  group transition-all duration-200 mb-4 lg:mb-0">
+              <div className="value-block relative">
+                {/* Number */}
+                <span className="font-mono value-num text-lg font-medium text-border absolute pt-1">
+                  {value.num}
                 </span>
-              ))}
+                {/* Content */}
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
+                    {value.title}
+                  </h3>
+                  <p className="text-base opacity-70 leading-relaxed max-w-lg mb-4">
+                    {value.description}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

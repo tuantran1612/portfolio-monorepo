@@ -11,6 +11,11 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // disable lenis on touch devices — native scroll is better
+    if ("ontouchstart" in window && window.innerWidth < 768) {
+      ScrollTrigger.refresh();
+      return;
+    }
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

@@ -73,20 +73,23 @@ export function Navbar() {
               </Link>
             ))}
           </nav>
-
           <div className="flex items-center gap-2 md:ml-8 lg:ml-24">
             <LinkButton
               href="/contact"
               variant="secondary"
               size="default"
-              borderRadiuss="sm">
+              borderRadiuss="sm"
+              className="block">
               Let's Connect
             </LinkButton>
 
             {/* Mobile menu toggle */}
             <button
-              className="md:hidden inline-flex items-center justify-center rounded-md w-9 h-9 hover:bg-accent transition-colors"
-              onClick={() => setMobileOpen(!mobileOpen)}>
+              className="relative z-50 md:hidden inline-flex items-center justify-center rounded-md w-9 h-9"
+              onClick={() => {
+                alert("clicked");
+                setMobileOpen(!mobileOpen);
+              }}>
               {mobileOpen ? (
                 <X className="h-5 w-5" size={18} />
               ) : (

@@ -1,20 +1,20 @@
-import { notFound } from 'next/navigation'
-import { projectService } from '@/services/project.service'
-import { ProjectDetail } from '@/components/projects/project-detail'
-import { ProjectJsonLd } from '@/components/seo/json-ld'
-import type { Metadata } from 'next'
+import { notFound } from "next/navigation";
+import { projectService } from "@/services/project.service";
+import { ProjectDetail } from "@/components/projects/project-detail";
+import { ProjectJsonLd } from "@/components/seo/json-ld";
+import type { Metadata } from "next";
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 60
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const { slug } = await params
-    const project = await projectService.getBySlug(slug)
+    const { slug } = await params;
+    const project = await projectService.getBySlug(slug);
     return {
       title: project.title,
       description: project.description,
@@ -23,26 +23,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: project.description,
         images: project.imageUrl ? [{ url: project.imageUrl }] : [],
       },
-    }
+    };
   } catch {
-    return { title: 'Project not found' }
+    return { title: "Project not found" };
   }
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
-  const { slug } = await params
+  const { slug } = await params;
 
-  let project
+  let project;
   try {
-    project = await projectService.getBySlug(slug)
+    project = await projectService.getBySlug(slug);
   } catch {
-    notFound()
+    notFound();
   }
+
+  const related = await projectService
+    .getRelated(project.category.slug, slug)
+    .catch(() => []);
 
   return (
     <>
       <ProjectJsonLd project={project} />
-      <ProjectDetail project={project} />
+      <ProjectDetail project={project} related={related} />
     </>
-  )
+  );
 }

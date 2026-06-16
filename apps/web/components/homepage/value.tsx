@@ -36,8 +36,8 @@ export function Values() {
       gsap.utils.toArray<HTMLElement>(".value-row").forEach((row) => {
         ScrollTrigger.create({
           trigger: row,
-          start: "top 50%",
-          end: "bottom 50%",
+          start: "top center",
+          end: "bottom 45%",
           toggleClass: "is-visible",
         });
       });
@@ -48,20 +48,17 @@ export function Values() {
   return (
     <section
       ref={sectionRef}
-      className="min-h-screen flex flex-col justify-center px-6 md:px-12 py-16">
-      <div className="container mx-auto px-4">
+      className="lg:min-h-screen flex flex-col justify-center px-6 md:px-12 py-16">
+      <div className="px-4">
         {/* Header */}
         <div className="values-header flex items-start justify-between mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.05]">
+          <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight leading-[1.05]">
             What I can
             <br />
-            <em className="font-light text-muted-foreground not-italic">
+            <em className="font-light text-sub text-muted-foreground not-italic">
               help you with
             </em>
           </h2>
-          <span className="font-mono text-xs text-muted-foreground mt-2">
-            02 · services
-          </span>
         </div>
 
         {/* List */}
@@ -69,15 +66,15 @@ export function Values() {
           {values.map((value) => (
             <div
               key={value.num}
-              className="value-row grid grid-cols-[56px_1fr_40px] md:grid-cols-[64px_1fr_48px] items-start gap-6  group transition-all duration-200 mb-4 lg:mb-0">
-              <div className="value-block relative">
+              className="value-row grid  md:grid-cols-[64px_1fr_48px] items-start gap-6 group transition-all duration-200 mb-4 lg:mb-12">
+              <div className="value-block w-full relative">
                 {/* Number */}
-                <span className="font-mono value-num text-lg font-medium text-border absolute pt-1">
+                <span className="font-sans value-num text-lg font-black text-border absolute pt-1">
                   {value.num}
                 </span>
                 {/* Content */}
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
+                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-primary mb-2">
                     {value.title}
                   </h3>
                   <p className="text-base opacity-70 leading-relaxed max-w-lg mb-4">

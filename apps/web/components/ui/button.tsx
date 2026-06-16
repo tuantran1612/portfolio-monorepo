@@ -8,7 +8,8 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default:
+          "bg-primary text-white text-primary-foreground hover:bg-primary/80",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:bg-transparent dark:hover:bg-input/30",
         secondary:
@@ -31,12 +32,11 @@ const buttonVariants = cva(
         "icon-lg": "size-10",
       },
       borderRadius: {
-        default:
-          "round-1",
-          xs:"round-2",
-          sm:"round-3",
-          lg:"round-4",
-          roundPill:"round-pill",
+        default: "round-1",
+        xs: "round-2",
+        sm: "round-3",
+        lg: "round-4",
+        roundPill: "round-pill",
       },
     },
     defaultVariants: {
@@ -44,20 +44,20 @@ const buttonVariants = cva(
       size: "default",
       borderRadius: "default",
     },
-  },
+  }
 );
 
 function Button({
   className,
   variant = "default",
   size = "default",
-  borderRadius= "default",
+  borderRadius = "default",
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className,borderRadius }))}
+      className={cn(buttonVariants({ variant, size, className, borderRadius }))}
       {...props}
     />
   );

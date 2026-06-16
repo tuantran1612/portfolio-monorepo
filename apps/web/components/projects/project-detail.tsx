@@ -1,106 +1,262 @@
-// "use client";
-import DOMPurify from "isomorphic-dompurify";
+"use client";
+
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { LinkButton } from "@/components/ui/link";
+import { BackButton } from "@/components/ui/back-button";
 import type { Project } from "@portfolio/types";
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ProjectDetailProps {
   project: Project;
+  related: Project[];
+  nextProject: Project | null;
 }
 
-export function ProjectDetail({ project }: ProjectDetailProps) {
-  const sanitizedContent = project.content
-    ? DOMPurify.sanitize(project.content)
-    : null;
+export function ProjectDetail({
+  project,
+  related,
+  nextProject,
+}: ProjectDetailProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // sanitize content client side
+  const sanitizedContent = project.content || "";
+
+  useGSAP(
+    () => {
+      // title entrance
+      gsap.from(".detail-title", {
+        opacity: 0,
+        y: 50,
+        duration: 0.9,
+        ease: "power3.out",
+      });
+
+      // metadata strip
+      gsap.from(".detail-meta-col", {
+        opacity: 0,
+        y: 20,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power3.out",
+        delay: 0.3,
+      });
+
+      // hero image parallax
+      if (project.imageUrl) {
+        gsap.to(".detail-hero-inner", {
+          yPercent: 15,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".detail-hero",
+            scroller: document.body,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }
+
+      // content fade in
+      gsap.from(".detail-content", {
+        opacity: 0,
+        y: 30,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".detail-content",
+          scroller: document.body,
+          start: "top 85%",
+          once: true,
+        },
+      });
+
+      // next project
+      gsap.from(".next-project", {
+        opacity: 0,
+        y: 30,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".next-project",
+          scroller: document.body,
+          start: "top 85%",
+          once: true,
+        },
+      });
+    },
+    { scope: ref }
+  );
+
   return (
-    <article className="container mx-auto px-4 py-12 max-w-4xl">
-      {/* Back */}
-      <Link
-        href="/projects"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
-        <ArrowLeft className="h-4 w-4" />
-        Back to projects
-      </Link>
+    <>
+      <BackButton />
 
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <Badge variant="secondary">{project.category.name}</Badge>
-          {project.featured && (
-            <Badge className="bg-amber-500/10 text-amber-600 border-0">
-              Featured
-            </Badge>
-          )}
+      <div ref={ref}>
+        {/* Title section */}
+        <div className="px-6 md:px-12 pt-16 pb-10">
+          <div className="flex items-center gap-3 mb-6">
+            <Link
+              href="/projects"
+              className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors">
+              ← Work
+            </Link>
+            <span className="font-mono text-xs text-muted-foreground">/</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {project.category.name}
+            </span>
+          </div>
+
+          <h1 className="detail-title text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.0] max-w-4xl mb-10">
+            {project.title}
+          </h1>
+
+          {/* Metadata strip — 3 columns like Edwin Le */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-t border-b border-border/40">
+            <div className="detail-meta-col">
+              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                Category
+              </p>
+              <p className="text-sm font-medium">{project.category.name}</p>
+            </div>
+
+            <div className="detail-meta-col">
+              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                Year
+              </p>
+              <p className="text-sm font-medium">
+                {new Date(project.createdAt).getFullYear()}
+              </p>
+            </div>
+
+            <div className="detail-meta-col">
+              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                Tech stack
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {project.techStack.slice(0, 4).map((tech) => (
+                  <p key={tech} className="text-sm font-medium">
+                    {tech}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            <div className="detail-meta-col flex flex-col gap-2">
+              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                Links
+              </p>
+              {project.liveUrl && (
+                <Link
+                  href={project.liveUrl}
+                  target="_blank"
+                  className="text-sm font-medium hover:text-primary transition-colors inline-flex items-center gap-1">
+                  Live site ↗
+                </Link>
+              )}
+              {project.repoUrl && (
+                <Link
+                  href={project.repoUrl}
+                  target="_blank"
+                  className="text-sm font-medium hover:text-primary transition-colors inline-flex items-center gap-1">
+                  Source code ↗
+                </Link>
+              )}
+              {!project.liveUrl && !project.repoUrl && (
+                <p className="text-sm text-muted-foreground">—</p>
+              )}
+            </div>
+          </div>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight mb-4">
-          {project.title}
-        </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
-          {project.description}
-        </p>
+
+        {/* Hero image — full bleed, edge to edge */}
+        {project.imageUrl && (
+          <div
+            className="detail-hero relative w-full overflow-hidden"
+            style={{ height: "65vh" }}>
+            <div className="detail-hero-inner absolute inset-0 scale-110">
+              <Image
+                src={project.imageUrl}
+                alt={project.title}
+                fill
+                className="object-cover"
+                priority
+                sizes="100vw"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* No image fallback */}
+        {!project.imageUrl && (
+          <div
+            className="w-full flex items-center justify-center"
+            style={{
+              height: "40vh",
+              background:
+                "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.02))",
+            }}>
+            <span
+              className="font-bold text-primary/10"
+              style={{ fontSize: "clamp(80px, 15vw, 160px)" }}>
+              {project.title.charAt(0)}
+            </span>
+          </div>
+        )}
+
+        {/* Description + rich content */}
+        <div className="detail-content px-6 md:px-12 py-16">
+          <div className="max-w-2xl">
+            {/* Short description */}
+            <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed mb-12">
+              {project.description}
+            </p>
+
+            {/* TinyMCE rich content */}
+            {sanitizedContent && (
+              <div
+                className="prose prose-slate dark:prose-invert max-w-none
+                  prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
+                  prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
+                  prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3
+                  prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-6
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-ul:text-muted-foreground prose-li:mb-2
+                  prose-img:w-full prose-img:rounded-none prose-img:my-12
+                  [&_img]:!max-w-none [&_img]:-mx-6 [&_img]:md:-mx-12 [&_img]:w-[calc(100%+48px)] [&_img]:md:w-[calc(100%+96px)]
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
+                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Next project */}
+        {nextProject && (
+          <div className="next-project border-t border-border/40 px-6 md:px-12">
+            <Link
+              href={`/projects/${nextProject.slug}`}
+              className="group flex items-center justify-between py-10 hover:pl-2 transition-all duration-200">
+              <div>
+                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
+                  Next project
+                </p>
+                <h3 className="text-2xl md:text-3xl font-medium tracking-tight group-hover:text-primary transition-colors">
+                  {nextProject.title}
+                </h3>
+              </div>
+              <span className="text-2xl text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-200">
+                ↗
+              </span>
+            </Link>
+          </div>
+        )}
       </div>
-
-      {/* Hero image */}
-      {project.imageUrl && (
-        <div className="relative aspect-video rounded-xl overflow-hidden mb-10 border border-border/40">
-          <Image
-            src={project.imageUrl}
-            alt={project.title}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, 900px"
-          />
-        </div>
-      )}
-
-      {/* Links + tech stack */}
-      <div className="flex flex-wrap items-center gap-4 mb-10 pb-10 border-b border-border/40">
-        <div className="flex flex-wrap gap-2 flex-1">
-          {project.techStack.map((tech) => (
-            <Badge key={tech} variant="outline" className="text-xs">
-              {tech}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex gap-3">
-          {project.liveUrl && (
-            <LinkButton href={project.liveUrl} target="_blank" size="sm">
-              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              Live demo
-            </LinkButton>
-          )}
-          {project.repoUrl && (
-            <LinkButton
-              href={project.repoUrl}
-              target="_blank"
-              variant="outline"
-              size="sm">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="mr-1.5">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
-              </svg>
-              Source code
-            </LinkButton>
-          )}
-        </div>
-      </div>
-
-      {/* Rich content */}
-      {sanitizedContent && (
-        <div
-          className="prose prose-slate dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-        />
-      )}
-    </article>
+    </>
   );
 }

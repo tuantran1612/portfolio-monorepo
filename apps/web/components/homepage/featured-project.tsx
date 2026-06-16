@@ -1,226 +1,222 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Image from "next/image";
-import Link from "next/link";
 import type { Project } from "@portfolio/types";
-import { Card, CardHeader } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface FeaturedProjectsProps {
+interface Props {
   projects: Project[];
 }
 
-export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
+const config = {
+  minSize: 0.1,
+  growth: 0.25,
+  aspect: 1 / 1.25,
+};
+
+export function FeaturedProjects({ projects }: Props) {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const projectIndexRef = useRef<HTMLDivElement>(null);
-  const projectImagesRef = useRef<HTMLDivElement>(null);
-  const imgRefs = useRef<HTMLDivElement[]>([]);
-  const [indexText, setIndexText] = useState(
-    `01/${String(projects.length).padStart(2, "0")}`
-  );
-  const [isMobile, setIsMobile] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   useGSAP(
     () => {
-      if (isMobile) return;
-      const section = sectionRef.current;
-      const projectIndex = projectIndexRef.current;
-      const projectImagesContainer = projectImagesRef.current;
+      const mm = gsap.matchMedia();
+      mm.add("(min-width: 1000px)", () => {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        if (!sectionRef.current || !sliderRef.current) return;
 
-      if (!section || !projectIndex || !projectImagesContainer) return;
+        const slider = sliderRef.current;
 
-      const totalProjectCount = projects.length;
-      const spotlightHeight = section.offsetHeight;
-      const spotlightPadding = parseFloat(getComputedStyle(section).paddingTop);
-      const indexHeight = projectIndex.offsetHeight;
-      const imagesHeight = projectImagesContainer.offsetHeight;
-      const imgActivationThreshold = window.innerHeight / 2;
+        const growthRatio = Math.exp(config.growth);
 
-      const moveDistanceIndex =
-        spotlightHeight - spotlightPadding * 2 - indexHeight;
-      const moveDistanceImages = window.innerHeight - imagesHeight;
+        const slideCount =
+          Math.ceil(
+            Math.log(1 + (growthRatio - 1) / config.minSize) / config.growth
+          ) + 4;
 
-      ScrollTrigger.create({
-        trigger: section,
-        scroller: document.body,
-        start: "top top",
-        end: `+=${spotlightHeight * totalProjectCount}`,
-        pin: true,
-        pinType: "transform",
-        pinSpacing: true,
-        anticipatePin: 1,
-        scrub: 1,
-        onUpdate: (self) => {
-          const progress = self.progress;
+        const edgeX = (pos: number, width: number) =>
+          (width * config.minSize * (Math.pow(growthRatio, pos) - 1)) /
+          (growthRatio - 1);
 
-          // update index text — matches original exactly
-          const currentIndex = Math.min(
-            Math.floor(progress * totalProjectCount) + 1,
-            totalProjectCount
-          );
-          setIndexText(
-            `${String(currentIndex).padStart(2, "0")}/${String(
-              totalProjectCount
-            ).padStart(2, "0")}`
-          );
+        const indices = Array.from({ length: slideCount }, (_, i) => i);
 
-          // move index and images container — matches original exactly
-          gsap.set(projectIndex, {
-            y: progress * moveDistanceIndex,
-          });
+        let progress = 0;
 
-          gsap.set(projectImagesContainer, {
-            y: progress * moveDistanceImages,
-          });
+        const trigger = ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top top",
+          end: `+=${window.innerHeight * projects.length}`,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
 
-          // activate image based on viewport center — matches original forEach exactly
-          imgRefs.current.forEach((img, i) => {
-            if (!img) return;
-            const imgRect = img.getBoundingClientRect();
-            const imgTop = imgRect.top;
-            const imgBottom = imgRect.bottom;
+          onUpdate(self) {
+            progress = self.progress * projects.length;
+          },
+        });
 
-            if (
-              imgTop <= imgActivationThreshold &&
-              imgBottom >= imgActivationThreshold
-            ) {
-              gsap.set(img, { opacity: 1 });
-              setActiveIndex(i);
-            } else {
-              gsap.set(img, { opacity: 0.5 });
+        function render() {
+          const width = slider.clientWidth;
+
+          const slides = slideRefs.current;
+
+          slides.forEach((slide, i) => {
+            if (!slide) return;
+
+            let index = indices[i];
+
+            while (edgeX(index + progress, width) > width) {
+              index -= slideCount;
             }
+
+            while (edgeX(index + progress + 1, width) < 0) {
+              index += slideCount;
+            }
+
+            indices[i] = index;
+
+            const left = edgeX(index + progress, width);
+            const right = edgeX(index + progress + 1, width);
+
+            const w = right - left;
+            const h = w / config.aspect;
+
+            gsap.set(slide, {
+              x: left,
+              width: w,
+              height: h,
+              zIndex: Math.round(right),
+            });
           });
-        },
+        }
+
+        gsap.ticker.add(render);
+        gsap.from(".heading-section", {
+          opacity: 0,
+          y: -100,
+          duration: 0.9,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            scroller: document.body,
+            start: "top 80%",
+          },
+        });
+        return () => {
+          gsap.ticker.remove(render);
+          trigger.kill();
+        };
       });
+
+      return () => {
+        mm.revert();
+      };
     },
     { scope: sectionRef, dependencies: [projects.length] }
   );
 
-  if (!projects.length) return null;
+  const growthRatio = Math.exp(config.growth);
+
+  const slideCount =
+    Math.ceil(
+      Math.log(1 + (growthRatio - 1) / config.minSize) / config.growth
+    ) + 4;
 
   return (
-    <section
-      ref={sectionRef}
-      className="spotlight relative h-screen px-6 md:px-12 py-16">
-      {/* Layout — number left, images right */}
-      <div className="flex max-lg:flex-col h-[calc(100%-120px)] items-start justify-between">
-        {/* Left — big scrolling number */}
-        <h2
-          ref={projectIndexRef}
-          className="flex text-3xl md:text-4xl items-center gap-2 font-bold mb-4">
-          <span className="text-foreground">Featured</span>
-          <span className="text-sub">Work</span>
-          <sup className="text-sm">({indexText})</sup>
-        </h2>
-
-        {/* Right — floating images */}
+    <section ref={sectionRef} className="relative pt-24 md:py-0">
+      <h2 className="px-4 md:px-12 lg:absolute lg:top-[140px] heading-section text-2xl sm:text-3xl md:text-6xl font-bold tracking-tight leading-[1.1] mb-3 md:mb-6 lg:mb-8">
+        <span className="hero-line-1 block text-foreground">
+          Featured <span className="text-sub">Work</span>
+        </span>
+      </h2>
+      <div className="hidden lg:block h-pin overflow-hidden">
         <div
-          ref={projectImagesRef}
-          className="flex h-full overflow-hidden flex-col gap-4 w-56 md:w-120 shrink-0">
-          {projects.map((project, i) => (
-            <div
-              key={project.id}
-              className="relative w-full transition-all duration-500"
-              style={{
-                height: "300px",
-              }}>
-              {project.imageUrl ? (
-                <Image
-                  src={project.imageUrl}
-                  alt={project.title}
-                  fill
-                  className="object-cover rounded-xl"
-                  loading="eager"
-                />
-              ) : (
-                <div className="w-full h-full rounded-xl border border-border/40 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                  <span className="text-4xl font-bold text-primary/20">
-                    {project.title.charAt(0)}
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
+          ref={sliderRef}
+          className="absolute inset-0 overflow-hidden spotlight-images">
+          {Array.from({ length: slideCount }).map((_, i) => {
+            const project = projects[i % projects.length];
+            return (
+              <div
+                key={i}
+                ref={(el) => {
+                  slideRefs.current[i] = el;
+                }}
+                className="absolute bottom-0 -translate-y-1/2">
+                <Link
+                  href={`/projects/${project.slug}`}
+                  className="spotlight-item">
+                  <div className="relative h-full w-full spotlight-item-img">
+                    <Image
+                      fill
+                      src={project.imageUrl || ""}
+                      alt={project.title}
+                      className="object-cover"
+                      priority={i < 2}
+                    />
+
+                    <div className="absolute spotlight-item-title p-4">
+                      <h3 className="font-medium">{project.title}</h3>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
+      <div className="lg:hidden px-4 sm:px-6">
+        <Swiper
+          slidesPerView={1.35}
+          breakpoints={{
+            425: {
+              slidesPerView: 1.65,
+              spaceBetween: 16,
+            },
+            540: {
+              slidesPerView: 1.75,
+              spaceBetween: 20,
+            },
+            640: {
+              slidesPerView: 2.2,
+              spaceBetween: 24,
+            },
+            768: {
+              slidesPerView: 3,
+              spaceBetween: 32,
+            },
+          }}
+          spaceBetween={16}>
+          {projects.map((project) => (
+            <SwiperSlide key={project.id}>
+              <Link
+                href={`/projects/${project.slug}`}
+                className="block spotlight-item">
+                <div className="relative spotlight-item-img max-lg:pt-[100%] overflow-hidden">
+                  <Image
+                    width="500"
+                    height="400"
+                    src={project.imageUrl || ""}
+                    alt={project.title}
+                    className="object-cover w-full h-full absolute inset-0"
+                  />
+                </div>
+                <div className="spotlight-item-title">
+                  <h3 className="font-medium">{project.title}</h3>
+                </div>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
     </section>
-    // <section ref={sectionRef} className="py-16 px-4 md:px-12 md:py-18">
-    //   <div className="container mx-auto ">
-    //     <div className="flex max-lg:flex-col items-start md:gap-12">
-    //       {/* Eyebrow */}
-
-    //       {/* Work list */}
-    //       <div className="project__card-featured-list flex flex-col">
-    //         {projects.map((project, i) => (
-    //           <Card
-    //             key={project.id}
-    //             ref={projectImagesRef}
-    //             className="flex flex-col h-full relative z-10 duration-300 project__card-featured gap-4"
-    //             style={{
-    //               opacity: i === activeIndex ? 1 : 0.3,
-    //               transform: i === activeIndex ? "scale(1)" : "scale(0.95)",
-    //             }}>
-    //             <Link
-    //               className="absolute top-0 bottom-0 left-0 right-0 z-20"
-    //               href={`/projects/${project.slug}`}></Link>
-    //             {project.imageUrl ? (
-    //               <div className="aspect-video overflow-hidden rounded-t-lg relative">
-    //                 <Image
-    //                   src={project.imageUrl}
-    //                   alt={project.title}
-    //                   fill
-    //                   className="object-cover group-hover:scale-105 transition-transform duration-500"
-    //                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-    //                 />
-    //               </div>
-    //             ) : (
-    //               <div className="aspect-video rounded-t-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-    //                 <span className="text-4xl font-bold text-primary/30">
-    //                   {project.title.charAt(0)}
-    //                 </span>
-    //               </div>
-    //             )}
-    //             <CardHeader className="pb-2 px-0">
-    //               <div className="flex flex-col items-start justify-between gap-3">
-    //                 <Link href={`/projects/${project.slug}`}>
-    //                   <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors">
-    //                     {project.title}
-    //                   </h3>
-    //                 </Link>
-    //                 <div className="flex flex-wrap gap-2">
-    //                   {project.techStack.slice(0, 4).map((tech) => (
-    //                     <Badge
-    //                       key={tech}
-    //                       variant="outline"
-    //                       className="text-xs rounded-md">
-    //                       {tech}
-    //                     </Badge>
-    //                   ))}
-    //                   {project.techStack.length > 4 && (
-    //                     <Badge variant="outline" className="text-xs rounded-md">
-    //                       +{project.techStack.length - 4}
-    //                     </Badge>
-    //                   )}
-    //                 </div>
-    //               </div>
-    //             </CardHeader>
-    //           </Card>
-    //         ))}
-    //       </div>
-    //     </div>
-    //   </div>
-    // </section>
   );
 }

@@ -1,3 +1,16 @@
+.text-overflow {
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* giới hạn 3 dòng */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.absolute-full {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+}
 .heroImgWrapper {
   @media (min-width: 64rem) {
     position: relative;
@@ -19,12 +32,55 @@
     }
   }
 }
-.featuredWrapper {
-  position: relative;
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
+.spotlight {
+  &-item {
+    left: 0;
+    bottom: 0;
+    @media (max-width: 991px) {
+      position: relative;
+      padding-top: 56px;
+    }
+    &-img {
+    }
+    &-title {
+      position: absolute;
+      top: 24px;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 0 8px;
+      h3 {
+        font-size: 1rem;
+        text-transform: uppercase;
+      }
+      &::before {
+        content: "";
+        display: block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #141414;
+      }
+      @media (min-width: 991px) {
+        top: 0px;
+        opacity: 0;
+        transition: all 0.5s ease 0s;
+      }
+    }
+    @media (hover: hover) {
+      &:hover {
+        .spotlight-item-title {
+          opacity: 1;
+          top: -48px;
+          &::before {
+            background: var(--primary);
+          }
+          h3 {
+            color: var(--primary);
+          }
+        }
+      }
+    }
   }
 }
 .hero-badge {
@@ -96,9 +152,11 @@
     grid-row-gap: 1.5em;
     justify-content: flex-start;
     align-items: flex-start;
-    min-width: 25em;
     display: flex;
     padding-left: 3.5em;
+    @media (min-width: 767px) {
+      min-width: 25em;
+    }
   }
   &-num {
     top: 0;

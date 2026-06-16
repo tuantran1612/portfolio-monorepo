@@ -20,7 +20,6 @@ export default async function HomePage() {
       <section className="">
         <FeaturedProjects projects={featuredProjects} />
         <ShortBio />
-        <Values />
       </section>
     </>
   );

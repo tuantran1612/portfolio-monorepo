@@ -27,19 +27,13 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "your@email.com",
-    href: "mailto:your@email.com",
+    value: "thatuan.1612@gmail.com",
+    href: "mailto:thatuan.1612@gmail.com",
   },
   {
     icon: MapPin,
     label: "Location",
     value: "Ho Chi Minh City, Vietnam",
-    href: null,
-  },
-  {
-    icon: Clock,
-    label: "Response time",
-    value: "Within 24 hours",
     href: null,
   },
 ];
@@ -85,22 +79,24 @@ export default function ContactForm() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Contact info */}
-        <div className="flex flex-row lg:flex-col gap-4 lg:gap-8 overflow-x-auto pb-2 lg:pb-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-col gap-4 lg:gap-8 overflow-x-auto pb-2 lg:pb-0">
           {contactInfo.map((item) => (
-            <div key={item.label} className="flex gap-4 items-start">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <item.icon className="h-5 w-5 text-primary" />
+            <div key={item.label} className="flex gap-4 items-center">
+              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+                <item.icon className="h-5 w-5 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium">{item.label}</p>
+                <p className="text-sm text-sub  font-medium">{item.label}</p>
                 {item.href ? (
                   <Link
                     href={item.href!}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors">
+                    className="text-base hover:text-primary transition-colors">
                     {item.value}
                   </Link>
                 ) : (
-                  <p className="text-sm text-muted-foreground">{item.value}</p>
+                  <p className="text-base text-muted-foreground">
+                    {item.value}
+                  </p>
                 )}
               </div>
             </div>
@@ -119,7 +115,9 @@ export default function ContactForm() {
                 <Input
                   placeholder="John Doe"
                   {...register("name")}
-                  className={cn(errors.name && "border-destructive")}
+                  className={cn(
+                    errors.name && "border-destructive border border-black/40"
+                  )}
                 />
                 {errors.name && (
                   <p className="text-xs text-destructive">
@@ -165,7 +163,7 @@ export default function ContactForm() {
             <Button
               type="submit"
               size="lg"
-              className="w-full md:w-auto"
+              className="w-full md:w-auto text-white uppercase"
               disabled={isPending}>
               {isPending ? "Sending..." : "Send message"}
             </Button>

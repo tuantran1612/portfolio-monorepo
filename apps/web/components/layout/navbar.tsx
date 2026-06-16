@@ -29,10 +29,8 @@ export function Navbar() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setScrolled(currentScrollY > 20);
-      if (currentScrollY < lastScrollY.current || currentScrollY < 80) {
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
         setVisible(true);
-      } else if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-        setVisible(false);
       }
       lastScrollY.current = currentScrollY;
     };
@@ -87,7 +85,6 @@ export function Navbar() {
             <button
               className="relative z-50 md:hidden inline-flex items-center justify-center rounded-md w-9 h-9"
               onClick={() => {
-                alert("clicked");
                 setMobileOpen(!mobileOpen);
               }}>
               {mobileOpen ? (

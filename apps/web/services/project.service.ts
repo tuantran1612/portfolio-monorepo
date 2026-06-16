@@ -27,7 +27,15 @@ export const projectService = {
     if (!res.ok) throw new Error('Failed to fetch projects')
     return res.json()
   },
+  getOne: async (id: string): Promise<Project> => {
+    const res = await fetch(`${API_URL}/projects/${id}`);
 
+    if (!res.ok) {
+      throw new Error("Project not found");
+    }
+
+    return res.json();
+  },
   // client-side version for filtering
   getAllClient: (category?: string): Promise<Project[]> => {
     const params: Record<string, string> = {}
@@ -51,4 +59,44 @@ export const projectService = {
     const projects: Project[] = await res.json()
     return projects.filter((p) => p.slug !== excludeSlug).slice(0, 3)
   },
+  getNextProject: async (
+    currentSlug: string
+  ): Promise<Project | null> => {
+    const res = await fetch(`${API_URL}/projects`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) return null;
+
+    const projects: Project[] = await res.json();
+
+    if (!projects.length) return null;
+
+    // Sort mới nhất lên đầu
+    const sortedProjects = [...projects].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+    );
+
+    const currentIndex = sortedProjects.findIndex(
+      (project) => project.slug === currentSlug
+    );
+
+    if (currentIndex === -1) return null;
+
+    // Loop project cuối -> project đầu
+    const nextIndex =
+      (currentIndex + 1) % sortedProjects.length;
+
+    return sortedProjects[nextIndex];
+  },
+  create: (data: CreateProjectDto): Promise<Project> =>
+    axiosInstance.post('/projects', data),
+
+  update: (id: string, data: UpdateProjectDto): Promise<Project> =>
+    axiosInstance.patch(`/projects/${id}`, data),
+
+  remove: (id: string): Promise<void> =>
+    axiosInstance.delete(`/projects/${id}`),
 }

@@ -9,14 +9,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
-gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
   { num: "3+", label: "years of experience" },
   { num: "10+", label: "projects shipped" },
   { num: "5", label: "core technologies" },
 ];
-
+type SplitRef = {
+  wordSplit: SplitText;
+};
 const config = {
   colorInitial: "#1e1e1e",
   colorAccent: "#bbbbbb",
@@ -28,7 +29,7 @@ const config = {
 };
 export function ShortBio() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const splitRefs = useRef([]);
+  const splitRefs = useRef<SplitRef[]>([]);
   const lastScrollProgress = useRef(0);
   const colorTransitionTimer = useRef(new Map());
   const completeWords = useRef(new Set());
@@ -60,20 +61,21 @@ export function ShortBio() {
           splitRefs.current.push({ wordSplit });
         });
 
-        const allWords = splitRefs.current.flatMap(
-          ({ wordSplit }) => wordSplit.words
+        const allWords: HTMLElement[] = splitRefs.current.flatMap(
+          ({ wordSplit }) => wordSplit.words as HTMLElement[]
         );
         gsap.set(allWords, { color: config.colorInitial });
 
-        const scheduleFinalTransition = (word, index) => {
+        const scheduleFinalTransition = (word: HTMLElement, index: number) => {
           const existingTimer = colorTransitionTimer.current.get(index);
+
           if (existingTimer) {
             clearTimeout(existingTimer);
           }
+
           const timer = setTimeout(() => {
             if (!completeWords.current.has(index)) {
               gsap.to(word, {
-                stagger: config.stagger,
                 duration: 0.05,
                 ease: "none",
                 color: config.colorFinal,
@@ -82,8 +84,10 @@ export function ShortBio() {
                 },
               });
             }
+
             colorTransitionTimer.current.delete(index);
           }, 0);
+
           colorTransitionTimer.current.set(index, timer);
         };
 

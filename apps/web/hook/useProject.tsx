@@ -8,7 +8,8 @@ import type {
 
 export const PROJECT_KEYS = {
   all: ["projects"] as const,
-  filtered: (category?: string) => ["projects", { category }] as const,
+  filtered: (category?: string, featured?: boolean) =>
+    ["projects", { category }] as const,
   detail: (id: string) => ["projects", id] as const,
 };
 

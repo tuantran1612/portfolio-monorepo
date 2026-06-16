@@ -3,6 +3,7 @@ import { projectService } from "@/services/project.service";
 import { ProjectDetail } from "@/components/projects/project-detail";
 import { ProjectJsonLd } from "@/components/seo/json-ld";
 import type { Metadata } from "next";
+import { Project } from "@portfolio/types";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -39,14 +40,20 @@ export default async function ProjectDetailPage({ params }: Props) {
     notFound();
   }
 
-  const related = await projectService
-    .getRelated(project.category.slug, slug)
-    .catch(() => []);
-
+  const [related, nextProject] = await Promise.all([
+    projectService
+      .getRelated(project.category.slug, slug)
+      .catch(() => [] as Project[]),
+    projectService.getNextProject(slug).catch(() => null),
+  ]);
   return (
     <>
       <ProjectJsonLd project={project} />
-      <ProjectDetail project={project} related={related} />
+      <ProjectDetail
+        project={project}
+        related={related}
+        nextProject={nextProject}
+      />
     </>
   );
 }

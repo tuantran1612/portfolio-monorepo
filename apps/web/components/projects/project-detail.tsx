@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -8,87 +8,114 @@ import Image from "next/image";
 import Link from "next/link";
 import { BackButton } from "@/components/ui/back-button";
 import type { Project } from "@portfolio/types";
-
+import dynamic from "next/dynamic";
+import { ScrollIndicator } from "../ui/scroll-indicator";
 gsap.registerPlugin(ScrollTrigger);
 
 interface ProjectDetailProps {
   project: Project;
-  related: Project[];
   nextProject: Project | null;
+  prevProject: Project | null;
 }
+// load wave only on client — avoids hydration mismatch from Math.sin() float differences
+const WaveBackground = dynamic(
+  () =>
+    import("./../ui/wave-background").then((m) => ({
+      default: m.WaveBackground,
+    })),
+  { ssr: false }
+);
 
-export function ProjectDetail({
-  project,
-  related,
-  nextProject,
-}: ProjectDetailProps) {
+export function ProjectDetail({ project }: ProjectDetailProps) {
   const ref = useRef<HTMLDivElement>(null);
-
-  // sanitize content client side
+  const heroRef = useRef<HTMLDivElement>(null);
   const sanitizedContent = project.content || "";
 
   useGSAP(
     () => {
-      // title entrance
+      // hero title entrance
       gsap.from(".detail-title", {
         opacity: 0,
-        y: 50,
-        duration: 0.9,
+        y: 60,
+        duration: 1.0,
         ease: "power3.out",
       });
 
-      // metadata strip
       gsap.from(".detail-meta-col", {
         opacity: 0,
         y: 20,
         duration: 0.6,
-        stagger: 0.1,
+        stagger: 0.08,
         ease: "power3.out",
-        delay: 0.3,
+        delay: 0.4,
       });
 
-      // hero image parallax
-      if (project.imageUrl) {
-        gsap.to(".detail-hero-inner", {
-          yPercent: 15,
+      gsap.from(".detail-scroll-hint", {
+        opacity: 0,
+        duration: 0.6,
+        delay: 0.8,
+        ease: "power2.out",
+      });
+
+      // image reveal
+      gsap.from(".detail-image-wrap", {
+        opacity: 0,
+        y: 40,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".detail-image-wrap",
+          scroller: document.body,
+          start: "top 85%",
+          once: true,
+        },
+      });
+      // description
+      gsap.fromTo(
+        ".detail-description",
+        {
+          opacity: 0,
+          y: 30,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".detail-description",
+            start: "top 85%",
+            once: true,
+          },
+        }
+      );
+
+      // rich content
+      gsap.from(".detail-prose", {
+        opacity: 0,
+        y: 20,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".detail-prose",
+          scroller: document.body,
+          start: "top 85%",
+          once: true,
+        },
+      });
+      if (heroRef.current) {
+        gsap.to(heroRef.current, {
+          opacity: 0,
+          y: -100,
           ease: "none",
           scrollTrigger: {
-            trigger: ".detail-hero",
-            scroller: document.body,
-            start: "top top",
-            end: "bottom top",
+            trigger: heroRef.current,
+            start: "bottom 80%",
+            end: "bottom 42%",
             scrub: true,
           },
         });
       }
-
-      // content fade in
-      gsap.from(".detail-content", {
-        opacity: 0,
-        y: 30,
-        duration: 0.7,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".detail-content",
-          scroller: document.body,
-          start: "top 85%",
-          once: true,
-        },
-      });
-
-      // next project
-      gsap.from(".next-project", {
-        opacity: 0,
-        y: 30,
-        duration: 0.7,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".next-project",
-          scroller: document.body,
-          start: "top 85%",
-          once: true,
-        },
-      });
     },
     { scope: ref }
   );
@@ -98,164 +125,148 @@ export function ProjectDetail({
       <BackButton />
 
       <div ref={ref}>
-        {/* Title section */}
-        <div className="px-6 md:px-12 pt-16 pb-10">
-          <div className="flex items-center gap-3 mb-6">
-            <Link
-              href="/projects"
-              className="font-mono text-xs text-muted-foreground hover:text-foreground transition-colors">
-              ← Work
-            </Link>
-            <span className="font-mono text-xs text-muted-foreground">/</span>
-            <span className="font-mono text-xs text-muted-foreground">
-              {project.category.name}
-            </span>
+        {/* ── PHASE 1: HERO ── */}
+        <div
+          ref={heroRef}
+          className="relative min-h-[95vh] flex flex-col overflow-hidden bg-background">
+          <WaveBackground />
+
+          <div className="relative z-10 px-6 md:px-16 lg:px-24 pt-20 md:pt-48">
+            {/* Title */}
+            <h1 className="detail-title text-primary text-[clamp(36px,6vw,80px)] font-medium leading-[1.0] tracking-tight max-w-4xl mb-16 md:mb-24">
+              {project.title}
+            </h1>
           </div>
-
-          <h1 className="detail-title text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.0] max-w-4xl mb-10">
-            {project.title}
-          </h1>
-
-          {/* Metadata strip — 3 columns like Edwin Le */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-6 border-t border-b border-border/40">
-            <div className="detail-meta-col">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-                Category
-              </p>
-              <p className="text-sm font-medium">{project.category.name}</p>
-            </div>
-
-            <div className="detail-meta-col">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-                Year
-              </p>
-              <p className="text-sm font-medium">
-                {new Date(project.createdAt).getFullYear()}
-              </p>
-            </div>
-
-            <div className="detail-meta-col">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-                Tech stack
-              </p>
-              <div className="flex flex-col gap-0.5">
-                {project.techStack.slice(0, 4).map((tech) => (
-                  <p key={tech} className="text-sm font-medium">
-                    {tech}
-                  </p>
-                ))}
+          {/* Metadata strip — no borders, wide spacing */}
+          <div className="relative z-10 px-6 md:px-16 lg:px-24 pb-16 md:pb-24">
+            <div className="flex max-md:flex-col md:grid-cols-4 gap-y-10 gap-x-8 md:gap-x-16">
+              <div className="detail-meta-col grow-0 shrink-0 flex-auto">
+                <p className="text-sub text-sm text-muted-foreground/50 uppercase tracking-widest mb-2">
+                  Category
+                </p>
+                <p className="text-base font-medium">{project.category.name}</p>
+              </div>
+              <div className="detail-meta-col grow-0 shrink-0 flex-auto">
+                <p className="text-sub text-sm text-muted-foreground/50 uppercase tracking-widest mb-2">
+                  Year
+                </p>
+                <p className="text-base font-medium">
+                  {new Date(project.createdAt).getFullYear()}
+                </p>
+              </div>
+              <div className="detail-meta-col grow-0 shrink-0 flex-auto">
+                <p className="text-sub text-sm text-muted-foreground/50 uppercase tracking-widest mb-2">
+                  Tech stack
+                </p>
+                <div className="flex flex-col gap-1">
+                  {project.techStack.map((tech) => (
+                    <p key={tech} className="text-base font-medium">
+                      {tech}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
-
-            <div className="detail-meta-col flex flex-col gap-2">
-              <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-                Links
-              </p>
-              {project.liveUrl && (
-                <Link
-                  href={project.liveUrl}
-                  target="_blank"
-                  className="text-sm font-medium hover:text-primary transition-colors inline-flex items-center gap-1">
-                  Live site ↗
-                </Link>
-              )}
-              {project.repoUrl && (
-                <Link
-                  href={project.repoUrl}
-                  target="_blank"
-                  className="text-sm font-medium hover:text-primary transition-colors inline-flex items-center gap-1">
-                  Source code ↗
-                </Link>
-              )}
-              {!project.liveUrl && !project.repoUrl && (
-                <p className="text-sm text-muted-foreground">—</p>
-              )}
-            </div>
+          </div>
+          <div
+            className="detail-scroll-hint absolute bottom-10
+            left-0 right-0 flex items-center gap-3 mt-16 md:mt-20">
+            <ScrollIndicator></ScrollIndicator>
           </div>
         </div>
-
-        {/* Hero image — full bleed, edge to edge */}
-        {project.imageUrl && (
-          <div
-            className="detail-hero relative w-full overflow-hidden"
-            style={{ height: "65vh" }}>
-            <div className="detail-hero-inner absolute inset-0 scale-110">
-              <Image
-                src={project.imageUrl}
-                alt={project.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="100vw"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* No image fallback */}
-        {!project.imageUrl && (
-          <div
-            className="w-full flex items-center justify-center"
-            style={{
-              height: "40vh",
-              background:
-                "linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.02))",
-            }}>
-            <span
-              className="font-bold text-primary/10"
-              style={{ fontSize: "clamp(80px, 15vw, 160px)" }}>
-              {project.title.charAt(0)}
-            </span>
-          </div>
-        )}
-
-        {/* Description + rich content */}
-        <div className="detail-content px-6 md:px-12 py-16">
-          <div className="max-w-2xl">
-            {/* Short description */}
-            <p className="text-xl md:text-2xl font-light text-muted-foreground leading-relaxed mb-12">
-              {project.description}
-            </p>
-
-            {/* TinyMCE rich content */}
-            {sanitizedContent && (
+        <div className="bg-[#141414] px-6 md:px-16 lg:px-24  py-12 md:py-16 lg:py-24">
+          {/* ── PHASE 2: IMAGE ── */}
+          <div className="detail-image-wrap mb-4 lg:mb-8">
+            {project.imageUrl ? (
               <div
-                className="prose prose-slate dark:prose-invert max-w-none
-                  prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-foreground
-                  prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
-                  prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3
-                  prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-6
-                  prose-strong:text-foreground prose-strong:font-semibold
-                  prose-ul:text-muted-foreground prose-li:mb-2
-                  prose-img:w-full prose-img:rounded-none prose-img:my-12
-                  [&_img]:!max-w-none [&_img]:-mx-6 [&_img]:md:-mx-12 [&_img]:w-[calc(100%+48px)] [&_img]:md:w-[calc(100%+96px)]
-                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline"
-                dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-              />
+                className="detail-hero-img relative w-full overflow-hidden rounded-2xl"
+                style={{ maxWidth: 1280, maxHeight: 640, margin: "0 auto" }}>
+                <div style={{ paddingTop: "50%" }} className="relative">
+                  <Image
+                    src={project.imageUrl}
+                    alt={project.title}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 1280px"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div
+                className="relative w-full overflow-hidden rounded-2xl flex items-center justify-center"
+                style={{
+                  maxWidth: 1280,
+                  margin: "0 auto",
+                  height: 480,
+                  background:
+                    "linear-gradient(135deg, hsl(var(--primary)/0.08), hsl(var(--primary)/0.02))",
+                }}>
+                <span
+                  className="font-bold text-primary/10"
+                  style={{ fontSize: "clamp(80px,15vw,180px)" }}>
+                  {project.title.charAt(0)}
+                </span>
+              </div>
             )}
           </div>
-        </div>
-
-        {/* Next project */}
-        {nextProject && (
-          <div className="next-project border-t border-border/40 px-6 md:px-12">
-            <Link
-              href={`/projects/${nextProject.slug}`}
-              className="group flex items-center justify-between py-10 hover:pl-2 transition-all duration-200">
-              <div>
-                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest mb-2">
-                  Next project
-                </p>
-                <h3 className="text-2xl md:text-3xl font-medium tracking-tight group-hover:text-primary transition-colors">
-                  {nextProject.title}
-                </h3>
-              </div>
-              <span className="text-2xl text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-200">
-                ↗
-              </span>
-            </Link>
+          {/* ── PHASE 2: CONTENT ── */}
+          <div className="detail-content">
+            <div className="max-w-3xl mx-auto">
+              {/* Short description */}
+              <h4 className="text-white uppercase tracking-widest mb-4">
+                Background
+              </h4>
+              <p className="detail-description text-white/60 text-xl font-light text-muted-foreground leading-relaxed mb-16">
+                {project.description}
+              </p>
+              {/* Rich content from TinyMCE */}
+              {sanitizedContent ? (
+                <div
+                  className="detail-prose prose prose-slate dark:prose-invert max-w-none
+                  prose-headings:font-medium prose-headings:tracking-tight
+                  prose-h2:text-2xl prose-h2:mt-16 prose-h2:mb-5
+                  prose-h3:text-lg prose-h3:mt-10 prose-h3:mb-3
+                  prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:text-base prose-p:mb-5
+                  prose-strong:text-foreground prose-strong:font-semibold
+                  prose-ul:text-muted-foreground prose-ul:pl-4
+                  prose-li:mb-2 prose-li:text-base
+                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                  [&_img]:rounded-xl [&_img]:w-full [&_img]:my-12
+                  [&_blockquote]:border-l-2 [&_blockquote]:border-primary/30 [&_blockquote]:pl-6 [&_blockquote]:text-muted-foreground [&_blockquote]:not-italic
+                "
+                  dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+                />
+              ) : (
+                /* Example content structure hint when no content */
+                <div className="flex flex-col gap-12 text-muted-foreground/40">
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-widest mb-4">
+                      Background
+                    </p>
+                    <div className="h-4 bg-current rounded opacity-20 mb-2 w-full" />
+                    <div className="h-4 bg-current rounded opacity-20 mb-2 w-4/5" />
+                    <div className="h-4 bg-current rounded opacity-20 w-3/5" />
+                  </div>
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-widest mb-4">
+                      Challenge
+                    </p>
+                    <div className="h-4 bg-current rounded opacity-20 mb-2 w-full" />
+                    <div className="h-4 bg-current rounded opacity-20 w-2/3" />
+                  </div>
+                  <div>
+                    <p className="font-mono text-xs uppercase tracking-widest mb-4">
+                      Key results
+                    </p>
+                    <div className="h-4 bg-current rounded opacity-20 mb-2 w-full" />
+                    <div className="h-4 bg-current rounded opacity-20 w-3/4" />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </>
   );

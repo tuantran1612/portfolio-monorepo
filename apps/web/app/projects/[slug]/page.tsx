@@ -40,19 +40,15 @@ export default async function ProjectDetailPage({ params }: Props) {
     notFound();
   }
 
-  const [related, nextProject] = await Promise.all([
-    projectService
-      .getRelated(project.category.slug, slug)
-      .catch(() => [] as Project[]),
-    projectService.getNextProject(slug).catch(() => null),
-  ]);
+  const { prevProject, nextProject } =
+    await projectService.getProjectNavigation(slug);
   return (
     <>
       <ProjectJsonLd project={project} />
       <ProjectDetail
         project={project}
-        related={related}
         nextProject={nextProject}
+        prevProject={prevProject}
       />
     </>
   );

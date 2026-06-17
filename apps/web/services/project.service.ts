@@ -59,20 +59,20 @@ export const projectService = {
     const projects: Project[] = await res.json()
     return projects.filter((p) => p.slug !== excludeSlug).slice(0, 3)
   },
-  getNextProject: async (
-    currentSlug: string
-  ): Promise<Project | null> => {
+  getProjectNavigation: async (currentSlug: string) => {
     const res = await fetch(`${API_URL}/projects`, {
       next: { revalidate: 60 },
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      return {
+        prevProject: null,
+        nextProject: null,
+      };
+    }
 
     const projects: Project[] = await res.json();
 
-    if (!projects.length) return null;
-
-    // Sort mới nhất lên đầu
     const sortedProjects = [...projects].sort(
       (a, b) =>
         new Date(b.createdAt).getTime() -
@@ -80,16 +80,28 @@ export const projectService = {
     );
 
     const currentIndex = sortedProjects.findIndex(
-      (project) => project.slug === currentSlug
+      (p) => p.slug === currentSlug
     );
 
-    if (currentIndex === -1) return null;
+    if (currentIndex === -1) {
+      return {
+        prevProject: null,
+        nextProject: null,
+      };
+    }
 
-    // Loop project cuối -> project đầu
+    const prevIndex =
+      currentIndex === 0
+        ? sortedProjects.length - 1
+        : currentIndex - 1;
+
     const nextIndex =
       (currentIndex + 1) % sortedProjects.length;
 
-    return sortedProjects[nextIndex];
+    return {
+      prevProject: sortedProjects[prevIndex],
+      nextProject: sortedProjects[nextIndex],
+    };
   },
   create: (data: CreateProjectDto): Promise<Project> =>
     axiosInstance.post('/projects', data),

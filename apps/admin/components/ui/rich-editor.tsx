@@ -16,7 +16,7 @@ export function RichEditor({ value, onChange, height = 400 }: RichEditorProps) {
 
   return (
     <Editor
-      apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
+      apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY || "no-api-key"}
       onInit={(_, editor) => (editorRef.current = editor)}
       value={value}
       onEditorChange={onChange}
